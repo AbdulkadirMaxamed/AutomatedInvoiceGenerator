@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 // //setting up user route for admin authentication
 const userRoute = require('./routes/users');
 const orderRoute = require('./routes/orders');
+const carsRoute = require('./routes/cars');
 
 mongoose.connect(`mongodb+srv://abdulkadirq12:InvoiceGenerator@cluster0.kynpuci.mongodb.net/`,{
     useNewUrlParser: true
@@ -28,7 +29,7 @@ if (req.method === 'OPTIONS') {
 app.use('/orders', orderRoute);
 app.use('/users', userRoute);
 
-// app.use('/users', userRoute);
+app.use('/cars', carsRoute);
 app.use((req,res,next) =>{
     res.status(200).json({
         message: 'server is currently running'
