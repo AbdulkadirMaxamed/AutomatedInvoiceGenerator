@@ -31,4 +31,22 @@ router.get('/:CarName', (req,res,next) =>{
     })
 })
 
+
+//handling adding new car to database
+router.post('/addNewCar', (req,res,next) =>{
+    const newCar = {
+        make: req.body.make,
+        model: req.body.model,
+        type: req.body.type,
+        reg: req.body.reg,
+        mileage: req.body.mileage,
+        price: req.body.price
+    }
+
+    res.status(201).json({
+        message: "Uploading new Car",
+        createdCar: newCar
+    })
+})
+
 module.exports = router
