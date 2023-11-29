@@ -3,10 +3,6 @@
 //a basic connection to authenticate if the admin user is logged in
 //will need to consider validation and password encryption
 
-// Abeer Shahid
-// 27-Nov-23 
-// routes/users.js
-
 // imports
 const express = require('express')
 const router = express.Router
@@ -30,8 +26,8 @@ router.post('/signup', (req, res, next) => {
             bcrypt.hash(req.body.password, 10 /* (no. of salting rounds, 10 considered safe)*/, (err, hash) => {
                 if (err) {
                     return res.status(500).json({
-                        error: err // returning err if hashed password not generated 
-                        }) 
+                        error: err // returning err if hashed password not generated
+                        })
                     } else { // else block layout ensures user is only created if a hashed password is generated
                             const user = new User({
                                 _id: new mongoose.Types.ObjectId(),
@@ -60,10 +56,10 @@ router.post('/signup', (req, res, next) => {
 router.post('/login', (req, res, next) => {
     User.find({ email: req.body.email }) // can also use findOne() to specify checking only 1 user
     .exec()
-    .then(user => { 
-        if (user.length < 1) { // checks if user exists, if < 1 then user doesn't exist 
+    .then(user => {
+        if (user.length < 1) { // checks if user exists, if < 1 then user doesn't exist
             return res.status(401).json({ // 401 means unauthorised
-               message: 'Auth failed' 
+               message: 'Auth failed'
             });
         }
        bcrypt.compare(req.body.password, user[0].password, (err, result) => { // user[0] specifies first user in array
@@ -73,10 +69,10 @@ router.post('/login', (req, res, next) => {
             });
         }
         if (result) {
-            const token = jwt.sign({ 
+            const token = jwt.sign({
                 email: user[0].email,
                 userID: user[0]._id
-            }, 
+            },
             process.env.JWT_KEY,
             {
                 expiresIn: "1h"
@@ -86,7 +82,7 @@ router.post('/login', (req, res, next) => {
                 token: token
             });
         }
-       }); 
+       });
     })
     .catch(err => {
         console.log(err)

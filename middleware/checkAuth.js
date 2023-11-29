@@ -1,4 +1,4 @@
-// importing json web token 
+// importing json web token
 const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
