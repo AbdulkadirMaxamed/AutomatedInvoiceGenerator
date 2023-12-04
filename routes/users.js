@@ -5,7 +5,7 @@
 
 // imports
 const express = require('express')
-const router = express.Router
+const router = express.Router()
 const User = require('../models/user')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt') // bcyrpt used to encrypt user passwords
@@ -13,6 +13,7 @@ const jwt = require('jsonwebtoken') // jsonwebtoken for generating web toker
 const checkAuth = require('../middleware/checkAuth')
 
 // POST method - create new users
+// This method isn't needed as onl one user (i.e. Admin) is required. Need to determine best way to incorporate JWT token and password encryption/validation
 router.post('/signup', (req, res, next) => {
     User.find({email: req.body.email}) // .find used to check if user with same email already exists
     .exec()
@@ -83,23 +84,6 @@ router.post('/login', (req, res, next) => {
             });
         }
        });
-    })
-    .catch(err => {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    })
-})
-
-// DELETE method - delete users with specified user ID
-router.delete('/:userId', checkAuth, (req, res, next) => {
-    User.deleteOne({_id: req.params.id})
-    .exec()
-    .then(result => {
-        res.status(200).json({
-            message: 'User deleted'
-        })
     })
     .catch(err => {
         console.log(err)
