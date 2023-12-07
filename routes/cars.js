@@ -114,4 +114,5 @@ router.post('/addNewCar', (req,res,next) =>{
 module.exports = router
 
 
-//populate cars list and make cars schema
+//search cars by reg
+//will need to make a new category called reg and search by reg through params.
