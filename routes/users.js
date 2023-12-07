@@ -22,7 +22,12 @@ router.post('/signup', (req, res, next) => {
             return res.status(409).json({
                 message: 'Account with this email already exists'
             })
-        } else {
+        } else if (req.body.password.length < 5 || req.body.password.length > 10) {
+            return res.status(401).json({
+                message: 'Password invalid'
+            })
+        }
+        else {
             // Will encrypt password with node.bcrypt.js
             bcrypt.hash(req.body.password, 10 /* (no. of salting rounds, 10 considered safe)*/, (err, hash) => {
                 if (err) {
@@ -74,7 +79,7 @@ router.post('/login', (req, res, next) => {
                 email: user[0].email,
                 userID: user[0]._id
             },
-            process.env.JWT_KEY,
+             process.env.JWT_KEY,
             {
                 expiresIn: "1h"
             });

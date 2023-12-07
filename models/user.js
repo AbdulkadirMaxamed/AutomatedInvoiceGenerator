@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: true, // doesn't add validation, just optimises from performance perspective as specifies that only one entry for each email
         match: /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/}, // uses email regex for valid email entry
-    password: {type: String, required: true}
+    password: {type: String, required: true} // can't use min/maxlength due to password hashing setup in user route
 }
 )
 // exporting schema
