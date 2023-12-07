@@ -70,9 +70,29 @@ router.get('/model/:CarModel', (req,res,next) =>{
         }
     })
     .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    })
+})
+
+//retrieve all cars based off car name
+router.get('/reg/:CarReg', (req,res,next) =>{
+    const carReg = req.params.CarReg
+    Cars.find({reg: carReg}).exec()
+    .then(doc =>{
+        if(doc.length>0){
+            res.status(200).json(doc)
+        }else{
+            res.status(404).json({
+                message: "Seems like car is not in the DB"
+            })
+        }
+    })
+    .catch(err => {
         console.log("you have reached here" + err)
         res.status(500).json({
-            message: "im here",
             error: err
         })
     })
