@@ -4,4 +4,4 @@
 //will need to consider validation and password encryption
 
 const express = require('express')
-const router = express.Router
+const router = express.Router()
