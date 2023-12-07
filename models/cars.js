@@ -11,3 +11,4 @@ const carDB = mongoose.Schema({
 });
 
 module.exports = mongoose.model('Cars', carDB)
+//change type for the schemas to be {type: String, require:true}
