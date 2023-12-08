@@ -1,14 +1,9 @@
-//Abeer this is where your user route connection should.
-//according to the scope we only require 1 user "admin"
-//a basic connection to authenticate if the admin user is logged in
-//will need to consider validation and password encryption
-
 // imports
 const express = require('express')
 const router = express.Router()
 const User = require('../models/user')
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt') // bcyrpt used to encrypt user passwords
+const bcrypt = require('bcryptjs') // bcyrpt used to encrypt user passwords
 const jwt = require('jsonwebtoken') // jsonwebtoken for generating web toker
 const checkAuth = require('../middleware/checkAuth')
 
