@@ -134,5 +134,4 @@ router.post('/addNewCar', (req,res,next) =>{
 module.exports = router
 
 
-//search cars by reg
-//will need to make a new category called reg and search by reg through params.
+//delete cars with admin authentication privileges 
