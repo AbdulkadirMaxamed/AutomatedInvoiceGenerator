@@ -1,10 +1,32 @@
 // imports
 const express = require('express')
 const router = express.Router()
-const checkAuth = require('../middleware/checkAuth')
+const Cars = require('../models/cars')
+const Order = require('../models/order')
+// const checkAuth = require('../middleware/checkAuth')
+
+
+//history --- of all cars sold
+//history --- of 1 car so if im searching i can do by their reg
+
+router.get('/history/:CarReg', (req,res,next) =>{
+    const CarReg = req.params.CarReg
+    Cars.find({reg: CarReg}).exec().then(
+        doc =>{
+            console.log(doc)
+            if(doc){
+                res.status(200).json(doc)
+            }else{
+                res.status(404).json({
+                    message: "Car does not exist with that id"
+                })
+            }
+        }
+    )
+})
 
 // Handle incoming GET requests to /orders
-router.get('/', checkAuth, (req, res, next) => {
+router.get('/', (req, res, next) => {
     Order
     .find()
     .select(' car carReg _id') // select these three objects to be returned
@@ -34,7 +56,7 @@ router.get('/', checkAuth, (req, res, next) => {
 })
 
 // Handle incoming POST requests to /orders
-router.post('/', checkAuth, (req, res, next) => {
+router.post('/', (req, res, next) => {
     Car.findById(req.body.carId)
     .then(car => {
         if (!car) { // !car means if car is not found
@@ -74,7 +96,7 @@ router.post('/', checkAuth, (req, res, next) => {
 })
 
 // Handle incoming GET requests to /orders with specified order ID
-router.get('/:orderID', checkAuth, (req, res, next) => {
+router.get('/:orderID', (req, res, next) => {
     Order.findById(req.params.orderId)
     .populate('car') // method used to select specific object and its properties to display
     .exec()
@@ -100,7 +122,7 @@ router.get('/:orderID', checkAuth, (req, res, next) => {
 })
 
 // Handle incoming DELETE requests to /orders with specified order ID
-router.delete('/:orderId', checkAuth, (req, res, next) => {
+router.delete('/:orderId', (req, res, next) => {
     Order.deleteOne({_id: req.params.orderId})
     .exec()
     .then(order => {
@@ -122,3 +144,8 @@ router.delete('/:orderId', checkAuth, (req, res, next) => {
 
 // exporting orders function
 module.exports = router
+
+
+//for orders we will divide it to be cars currently processing order
+//vs 
+//cars sold
