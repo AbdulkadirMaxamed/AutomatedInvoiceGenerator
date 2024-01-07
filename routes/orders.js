@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const Cars = require('../models/cars')
 const Order = require('../models/order')
+const mongoose = require('mongoose')
 // const checkAuth = require('../middleware/checkAuth')
 
 
@@ -11,18 +12,21 @@ const Order = require('../models/order')
 
 router.get('/history/:CarReg', (req,res,next) =>{
     const CarReg = req.params.CarReg
-    Cars.find({reg: CarReg}).exec().then(
-        doc =>{
-            console.log(doc)
-            if(doc){
+    Order.find({reg: CarReg, status: "sold"}).exec()
+    .then(doc =>{
+        if(doc){
+            Cars.find({reg: CarReg}).exec()
+            .then(doc =>{
+            if(doc.length>0){
                 res.status(200).json(doc)
             }else{
                 res.status(404).json({
-                    message: "Car does not exist with that id"
+                    message: "There is no car that matches this reg"
                 })
             }
         }
-    )
+    )}
+    }) 
 })
 
 // Handle incoming GET requests to /orders
@@ -57,42 +61,45 @@ router.get('/', (req, res, next) => {
 
 // Handle incoming POST requests to /orders
 router.post('/', (req, res, next) => {
-    Car.findById(req.body.carId)
-    .then(car => {
-        if (!car) { // !car means if car is not found
-            return res.status(404).json({
-                message: 'Car not found' // if car not found error 404 and this message will be returned
+    Cars.findById(req.body.id)
+    .then(doc => {
+        if (!doc) { // !car means if car is not found
+            res.status(404).json({
+                message: 'Car not found',
+                status: 404 // if car not found error 404 and this message will be returned
             });
+        }else{
+            const order = new Order({ // initialising the order object and its properties
+                _id: new mongoose.Types.ObjectId(),
+                reg: req.body.reg,
+                status: "sold"
+            });
+            return order.save()
+            .then(result => {
+                console.log(result);
+                res.status(201).json({
+                    message: 'Order stored',
+                    createdOrder: {
+                        _id: result._id,
+                        carReg: result.reg,
+                        status: result.status
+                    },
+                    request: {
+                        type: 'GET',
+                        url: 'http://localhost:3000/orders/' + result._id
+                    }
+                })
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    error: err. message || 'Internal Server Error' // err.message used to display exact error message for easier debugging
+                })
+            })
         }
-        const order = new Order({ // initialising the order object and its properties
-            _id: new mongoose.Types.ObjectId(),
-            carReg: req.body.carReg,
-            car: req.body.carId
-        });
         // .save() gives you a real promise by default, no need to use .exec()
-    return order.save()
     })
-    .then(result => {
-        console.log(result);
-        res.status(201).json({
-            message: 'Order stored',
-            createdOrder: {
-                _id: result._id,
-                car: result.car,
-                carReg: result.carReg
-            },
-            request: {
-                type: 'GET',
-                url: 'http://localhost:3000/orders/' + result._id
-            }
-        })
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            error: err. message || 'Internal Server Error' // err.message used to display exact error message for easier debugging
-        })
-    })
+    
 })
 
 // Handle incoming GET requests to /orders with specified order ID

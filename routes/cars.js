@@ -34,11 +34,11 @@ router.get('/:CarId', (req,res,next) =>{
     const id = req.params.CarId
     Cars.findById(id).exec()
     //send the res status in the then block to avoid async issue
-    .then(doc => {
-        console.log(doc)
+    .then(car => {
+        console.log(car)
         //send reponse if the id not in the db
-        if(doc){
-            res.status(200).json(doc)
+        if(car){
+            res.status(200).json(car)
         }else{
             res.status(404).json({
                 message: "Car does not exist with that id"
@@ -113,6 +113,7 @@ router.post('/addNewCar', (req,res,next) =>{
         price: req.body.price
 
     })
+    //conditional to map if car reg already exists in db
     newCar.save().then(result =>{
         console.log(`new car uploaded successfully ${result}`)
         res.status(201).json({
