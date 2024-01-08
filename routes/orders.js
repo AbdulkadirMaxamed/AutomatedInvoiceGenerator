@@ -9,6 +9,21 @@ const mongoose = require('mongoose')
 
 //history --- of all cars sold
 //history --- of 1 car so if im searching i can do by their reg
+/*
+router.get('/history/', (req, res, next) => {
+    Order.find({status: "sold"}).exec() // only want to find all cars with status set to sold
+    .then(doc => {
+        if (doc.length > 0) {
+            res.status(200).json(doc)
+        } else {
+            res.status(404).json({
+                message: "No sold cars"
+            })
+        }
+            })
+        }
+)
+*/
 
 router.get('/history/:CarReg', (req,res,next) =>{
     const CarReg = req.params.CarReg
@@ -19,6 +34,7 @@ router.get('/history/:CarReg', (req,res,next) =>{
             .then(doc =>{
             if(doc.length>0){
                 res.status(200).json(doc)
+                console.log(doc)
             }else{
                 res.status(404).json({
                     message: "There is no car that matches this reg"
@@ -26,15 +42,47 @@ router.get('/history/:CarReg', (req,res,next) =>{
             }
         }
     )}
-    }) 
+    })
+})
+
+// Handle incoming GET requests to /history
+router.get('/history/', (req, res, next) => {
+    Order
+    .find({status: "sold"})
+    // .select(' car carReg _id') // select these three objects to be returned
+    // .populate('car', 'make', 'model') // shows only make and model properties of car object
+    .exec()
+    .then(docs => {
+        res.status(200).json({
+            count: docs.length, // provides a count of the number of sold cars in the database
+            orders: docs.map(doc => { // map method used to return specified properties of order below
+                return {
+                    // _id: doc._id,
+                    // make: doc.make,
+                    // model: doc.model,
+                    // reg: doc.reg,
+                    request: {
+                        type: 'GET',
+                       // url: 'http://localhost:3000/orders/history/' + carReg
+                       url: `http://localhost:3000/orders/history/${encodeURIComponent(doc.reg)}`
+                    }
+                }
+            }),
+        })
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    })
 })
 
 // Handle incoming GET requests to /orders
 router.get('/', (req, res, next) => {
     Order
     .find()
-    .select(' car carReg _id') // select these three objects to be returned
-    .populate('car', 'make', 'model') // shows only make and model properties of car object
+    // .select(' car carReg _id') // select these three objects to be returned
+    // .populate('car', 'make', 'model') // shows only make and model properties of car object
     .exec()
     .then(docs => {
         res.status(200).json({
