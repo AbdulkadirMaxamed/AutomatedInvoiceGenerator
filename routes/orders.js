@@ -9,21 +9,6 @@ const mongoose = require('mongoose')
 
 //history --- of all cars sold
 //history --- of 1 car so if im searching i can do by their reg
-/*
-router.get('/history/', (req, res, next) => {
-    Order.find({status: "sold"}).exec() // only want to find all cars with status set to sold
-    .then(doc => {
-        if (doc.length > 0) {
-            res.status(200).json(doc)
-        } else {
-            res.status(404).json({
-                message: "No sold cars"
-            })
-        }
-            })
-        }
-)
-*/
 
 router.get('/history/:CarReg', (req,res,next) =>{
     const CarReg = req.params.CarReg
@@ -55,12 +40,20 @@ router.get('/history/', (req, res, next) => {
     .then(docs => {
         res.status(200).json({
             count: docs.length, // provides a count of the number of sold cars in the database
-            orders: docs.map(doc => { // map method used to return specified properties of order below
+            orders: docs.map(doc => {
+                console.log(doc.reg)// map method used to return specified properties of order below
+                
+                // Cars.find({reg: doc.reg}).exec()
+                // .then(docss =>{
+                //     return{
+                //         make: docss.make,
+                //         model: docss.model
+                //     }
+                // })
                 return {
-                    // _id: doc._id,
-                    // make: doc.make,
-                    // model: doc.model,
-                    // reg: doc.reg,
+                    _id: doc._id,
+                    reg:doc.reg,
+                    status:doc.status,
                     request: {
                         type: 'GET',
                        // url: 'http://localhost:3000/orders/history/' + carReg
@@ -152,8 +145,7 @@ router.post('/', (req, res, next) => {
 
 // Handle incoming GET requests to /orders with specified order ID
 router.get('/:orderID', (req, res, next) => {
-    Order.findById(req.params.orderId)
-    .populate('car') // method used to select specific object and its properties to display
+    Order.findById(req.params.orderID) // method used to select specific object and its properties to display
     .exec()
     .then(order => {
         if (!order) {
