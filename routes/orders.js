@@ -4,13 +4,13 @@ const router = express.Router()
 const Cars = require('../models/cars')
 const Order = require('../models/order')
 const mongoose = require('mongoose')
-// const checkAuth = require('../middleware/checkAuth')
+const checkAuth = require('../middleware/checkAuth')
 
 
 //history --- of all cars sold
 //history --- of 1 car so if im searching i can do by their reg
 
-router.get('/history/:CarReg', (req,res,next) =>{
+router.get('/history/:CarReg', checkAuth, (req,res,next) =>{
     const CarReg = req.params.CarReg
     Order.find({reg: CarReg, status: "sold"}).exec()
     .then(doc =>{
@@ -31,7 +31,7 @@ router.get('/history/:CarReg', (req,res,next) =>{
 })
 
 // Handle incoming GET requests to /history
-router.get('/history/', (req, res, next) => {
+router.get('/history/', checkAuth, (req, res, next) => {
     Order
     .find({status: "sold"})
     // .select(' car carReg _id') // select these three objects to be returned
@@ -101,7 +101,7 @@ router.get('/', (req, res, next) => {
 })
 
 // Handle incoming POST requests to /orders
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
     Cars.findById(req.body.id)
     .then(doc => {
         if (!doc) { // !car means if car is not found
@@ -144,7 +144,7 @@ router.post('/', (req, res, next) => {
 })
 
 // Handle incoming GET requests to /orders with specified order ID
-router.get('/:orderID', (req, res, next) => {
+router.get('/:orderID', checkAuth, (req, res, next) => {
     Order.findById(req.params.orderID) // method used to select specific object and its properties to display
     .exec()
     .then(order => {
@@ -169,7 +169,7 @@ router.get('/:orderID', (req, res, next) => {
 })
 
 // Handle incoming DELETE requests to /orders with specified order ID
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth,(req, res, next) => {
     //delete by reg
     if(req.params.orderId.length<=8){
         //stores value entered in param as orderReg if the value is <8 (reg is 7 char + empty space = 8)

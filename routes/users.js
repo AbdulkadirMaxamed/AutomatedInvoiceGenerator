@@ -63,27 +63,31 @@ router.post('/login', (req, res, next) => {
                message: 'Auth failed'
             });
         }
-       bcrypt.compare(req.body.password, user[0].password, (err, result) => { // user[0] specifies first user in array
-        if (err) {
-            return res.status(401).json({
-                message: 'Auth failed'
+        //authentication should be for admin only!!
+        if (req.body.email.toLowerCase() === "admin@gmail.com"){
+            console.log("successful admin login")
+            bcrypt.compare(req.body.password, user[0].password, (err, result) => { // user[0] specifies first user in array
+                if (err) {
+                    return res.status(401).json({
+                        message: 'Auth failed'
+                    });
+                }
+                if (result) {
+                    const token = jwt.sign({
+                        email: user[0].email,
+                        userID: user[0]._id
+                    },
+                    process.env.JWT_KEY,
+                    {
+                        expiresIn: "5m"
+                    });
+                    return res.status(200).json({
+                        message: 'Auth successful',
+                        token: token
+                    });
+                }
             });
         }
-        if (result) {
-            const token = jwt.sign({
-                email: user[0].email,
-                userID: user[0]._id
-            },
-             process.env.JWT_KEY,
-            {
-                expiresIn: "1h"
-            });
-            return res.status(200).json({
-                message: 'Auth successful',
-                token: token
-            });
-        }
-       });
     })
     .catch(err => {
         console.log(err)
