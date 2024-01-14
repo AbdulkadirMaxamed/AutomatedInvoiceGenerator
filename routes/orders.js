@@ -170,23 +170,40 @@ router.get('/:orderID', (req, res, next) => {
 
 // Handle incoming DELETE requests to /orders with specified order ID
 router.delete('/:orderId', (req, res, next) => {
-    Order.deleteOne({_id: req.params.orderId})
-    .exec()
-    .then(order => {
-        res.status(200).json({
-            message: 'Order deleted',
-            request: {
-                type: 'POST',
-                url: 'http://localhost:3000/orders',
-                body: { carId: 'Id', carReg: 'String'}
-            }
+    //delete by reg
+    if(req.params.orderId.length<=8){
+        //stores value entered in param as orderReg if the value is <8 (reg is 7 char + empty space = 8)
+        const orderReg = req.params.orderId
+        Order.deleteOne({reg: orderReg}).exec() //use deleteOne to find car by its reg and delete the car
+        .then(doc=>{
+            res.status(200).json({
+                message: `Order with the following ${orderReg} has been successfully deleted`
+            })
+        }).catch(err =>{
+            console.log(err)
+            res.status(500).json({
+                error: err
+            })
         })
-    })
-    .catch(err => {
-        res.status(500).json({
-            error: err
+    }else{
+        Order.deleteOne({_id: req.params.orderId})
+        .exec()
+        .then(doc => {
+            res.status(200).json({
+                message: `Order with the following ${req.params.orderId} has been successfully deleted`,
+                request: {
+                    type: 'POST',
+                    url: 'http://localhost:3000/orders',
+                    body: { carId: 'Id', carReg: 'String'}
+                }
+            })
+        }).catch(err => {
+            console.log(err)
+            res.status(500).json({
+                error: err
+            })
         })
-    })
+    }    
 })
 
 // exporting orders function
