@@ -8,50 +8,48 @@ const jwt = require('jsonwebtoken') // jsonwebtoken for generating web toker
 const checkAuth = require('../middleware/checkAuth')
 
 // POST method - create new users
-// This method isn't needed as onl one user (i.e. Admin) is required. Need to determine best way to incorporate JWT token and password encryption/validation
-router.post('/signup', (req, res, next) => {
-    User.find({email: req.body.email}) // .find used to check if user with same email already exists
-    .exec()
-    .then(user => {
-        if (user.length >= 1) { // user.length used because user is not Null, will be empty array, .length >= 1 means email already exists. For length 0 we want to create a new user
+// Method updated to only allow creation of 1 user
+router.post('/signup', async (req, res, next) => { // async function used with await to enable asynchronous, promise-based behavior to be written in a cleaner style and avoiding the need to explicitly configure promise chains.
+    try {
+        // Check if there is already a user
+        const existingUser = await User.findOne({});
+
+        if (existingUser) {
             return res.status(409).json({
-                message: 'Account with this email already exists'
-            })
-        } else if (req.body.password.length < 5 || req.body.password.length > 10) {
+                message: 'Admin user already exists'
+            });
+        }
+
+        // Check if the password is valid
+        if (req.body.password.length < 5 || req.body.password.length > 10) {
             return res.status(401).json({
                 message: 'Password invalid'
-            })
+            });
         }
-        else {
-            // Will encrypt password with node.bcrypt.js
-            bcrypt.hash(req.body.password, 10 /* (no. of salting rounds, 10 considered safe)*/, (err, hash) => {
-                if (err) {
-                    return res.status(500).json({
-                        error: err // returning err if hashed password not generated
-                        })
-                    } else { // else block layout ensures user is only created if a hashed password is generated
-                            const user = new User({
-                                _id: new mongoose.Types.ObjectId(),
-                                email: req.body.email,
-                                password: hash
-                        });
-                        user.save()
-                        .then(result => {
-                            console.log(result)
-                            res.status(201).json({
-                                message: 'User created'
-                            })
-                        })
-                        .catch(err => {
-                            console.log(err)
-                            res.status(500).json({
-                                error: err
-                            })
-                        })
-                    }})
-                }
-            })
-        })
+
+        // Will encrypt password with bcrypt
+        const hash = await bcrypt.hash(req.body.password, 10); // 10 salting rounds, considered safe
+
+        // Create a new user
+        const user = new User({
+            _id: new mongoose.Types.ObjectId(),
+            email: req.body.email,
+            password: hash
+        });
+
+        // Save the user to the database
+        await user.save();
+
+        res.status(201).json({
+            message: 'User created'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
 
 // POST method - login requests
 router.post('/login', (req, res, next) => {
